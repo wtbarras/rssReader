@@ -1,0 +1,29 @@
+#! /bin/bash
+# rssReader: this script pulls down an rss feed, then parses it. 
+# Docs on yahoo weather rss feeds: http://developer.yahoo.com/weather/
+
+#Default rss feed to pull
+FEED='http://weather.yahooapis.com/forecastrss?w=2405641&u=f'
+
+
+
+#start process to grab rss file.
+#This runs in the background and wants to complete after the script is finished.
+#while loop below deals with this
+wget -o log -q  http://weather.yahooapis.com/forecastrss?w=2405641&u=f
+#wget -o log "$FEED"
+
+CHECK='1'
+
+#this stops the program until wget finishes
+while [ $CHECK -ne '0' ]
+do
+CHECK=$(ps|grep -o 'wget'|wc -l)
+done
+
+dos2unix 'forecastrss?w=2405641'
+echo 'File Converted'
+
+grep -F 'yweather:forecast' 'forecastrss?w=2405641'|cut -d \" -f 2,4,6,8|sed s/'"'/" "/g > forecast.txt
+echo 'File parsed and stored to forecast.txt'
+rm forecastrss?*
